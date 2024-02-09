@@ -2,6 +2,8 @@ import axios from 'axios';
 
 const filterButtons = document.querySelector('.filter-buttons');
 const exerciseFiltersList = document.querySelector('.exercise-filters-list');
+const ExercisesHead = document.querySelector('.ExercisesHead');
+
 const BASE_URL = 'https://energyflow.b.goit.study/api';
 const filterValueDefault = 'Muscles';
 // на div з кнопками вішаємо слухача
@@ -88,6 +90,7 @@ async function onCardClick(event) {
     const data = await getExercisesByFilter(filterValue, nameValue);
     // це буде масив об'єктів
     exerciseFiltersList.innerHTML = createMarkUp(data);
+    ExercisesHead.innerHTML = updateExercisesHeaderMarkup(nameValue);
   } catch (error) {
     console.log(error);
   }
@@ -163,4 +166,26 @@ function createMarkUp(array) {
     })
     .join('');
   return markup;
+}
+
+function updateExercisesHeaderMarkup(nameValue) {
+  return `<div>
+  <h2 class="title-exercises">Exercises / ${nameValue}</h2>
+  <div class="ExercisesHeared">
+  <div class="list-exercises filter-buttons">
+    <button class="item-exercises" data-filter="Muscles">Muscles</button>
+    <button class="item-exercises" data-filter="Body parts">Body parts</button>
+    <button class="item-exercises" data-filter="Equipment">Equipment</button>
+  </div>
+    <form action="" class="ExercisesForm">
+      <label for="#search" class="visually-hidden">Search</label>
+      <input name="search" placeholder="Search" type="search" id="search" />
+      <button type="submit">
+        <svg width='18' height='18'>
+          <use ></use>
+        </svg>
+      </button>
+    </form></div>
+</div>
+`;
 }
