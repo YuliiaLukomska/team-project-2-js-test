@@ -170,7 +170,7 @@ function createMarkUp(array) {
 
 function updateExercisesHeaderMarkup(nameValue) {
   return `<div>
-  <h2 class="title-exercises">Exercises / ${nameValue}</h2>
+  <h2 class="title-exercises">Exercises / <span class="NameValue"> ${nameValue}</span></h2>
   <div class="ExercisesHeared">
   <div class="list-exercises filter-buttons">
     <button class="item-exercises" data-filter="Muscles">Muscles</button>
