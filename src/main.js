@@ -69,7 +69,7 @@ function markupExercises(results) {
   // треба іннерhtml, щоб при кліку відбувалась заміна розмітки, а не продовження
   // exerciseFiltersList.insertAdjacentHTML('beforeend', markup);
 }
-
+// -------------------------------------------------------------------------------------------------------------------------------
 exerciseFiltersList.addEventListener('click', onCardClick);
 
 async function onCardClick(event) {
@@ -91,6 +91,9 @@ async function onCardClick(event) {
     // це буде масив об'єктів
     exerciseFiltersList.innerHTML = createMarkUp(data);
     ExercisesHead.innerHTML = updateExercisesHeaderMarkup(nameValue);
+    const FilterBtn = document.querySelector('#FilterBtn');
+    console.log(FilterBtn);
+    FilterBtn.addEventListener('click', onBtnClick);
   } catch (error) {
     console.log(error);
   }
@@ -172,7 +175,7 @@ function updateExercisesHeaderMarkup(nameValue) {
   return `<div>
   <h2 class="title-exercises">Exercises / <span class="NameValue"> ${nameValue}</span></h2>
   <div class="ExercisesHeared">
-  <div class="list-exercises filter-buttons">
+  <div class="list-exercises filter-buttons" id='FilterBtn'>
     <button class="item-exercises" data-filter="Muscles">Muscles</button>
     <button class="item-exercises" data-filter="Body parts">Body parts</button>
     <button class="item-exercises" data-filter="Equipment">Equipment</button>
@@ -189,3 +192,67 @@ function updateExercisesHeaderMarkup(nameValue) {
 </div>
 `;
 }
+// ==================================================================================================
+
+// це виклик функції Данила. Треба щоб він зробив експорт
+async function onBtnClick(event) {
+  // +++++++++++++++++++++++++++++++++++++++++++++++ДОДАТИ В КОМАНДНИЙ РЕПОЗИТОРІЙ 10.02.2024
+  const titleExercises = document.querySelector('.title-exercises');
+  titleExercises.innerHTML = 'Exercises';
+  const ExercisesForm = document.querySelector('.ExercisesForm');
+  ExercisesForm.remove();
+  console.log(titleExercises);
+  // +++++++++++++++++++++++++++++++++++++++++++++++++
+  if (event.target === event.currentTarget) {
+    return;
+  }
+  // дістаємо значення дата-атрибута елемента, на який клацнули
+  const filterValue = event.target.dataset.filter;
+  console.log(filterValue);
+  // чому робиш пустим ul при виклику функції?
+  // exerciseFiltersList.innerHTML = '';
+  try {
+    const data = await getExercise(filterValue);
+    // передаємо аргументом значення дата атрибута кнопки на яку клікнули
+    exerciseFiltersList.innerHTML = markupExercise(data);
+  } catch (error) {
+    console.log(error);
+  }
+}
+// по замовчувнню значення фільтра буде 'Muscles'
+async function getExercise(filter = filterValueDefault) {
+  try {
+    const response = await axios.get(`${BASE_URL}/filters`, {
+      params: {
+        filter: filter,
+        page: 1,
+        limit: 20,
+      },
+    });
+    return response.data.results;
+  } catch (error) {
+    console.log(error);
+  }
+}
+// функція отримує масив об'єктів
+function markupExercise(results) {
+  const markup = results
+    .map(
+      ({
+        name,
+        filter,
+        imgUrl,
+      }) => ` <li class='ExercisesItem' data-filter='${filter}' data-name='${name}'>
+        <img class="img-exercises" src="${imgUrl}" alt="${filter}">
+        <div>
+          <p>${name}</p>
+          <p>${filter}</p>
+        </div>
+      </li>`
+    )
+    .join('');
+  return markup;
+  // треба іннерhtml, щоб при кліку відбувалась заміна розмітки, а не продовження
+  // exerciseFiltersList.insertAdjacentHTML('beforeend', markup);
+}
+// --------------------------------------------------------------------------------------
