@@ -38,7 +38,7 @@ import{a as c}from"./assets/vendor-0cb09735.js";(function(){const a=document.cre
         </li>
       </ul>
     </li>`).join("")}function b(s){return`<div>
-  <h2 class="title-exercises">Exercises / ${s}</h2>
+  <h2 class="title-exercises">Exercises / <span class="NameValue"> ${s}</span></h2>
   <div class="ExercisesHeared">
   <div class="list-exercises filter-buttons">
     <button class="item-exercises" data-filter="Muscles">Muscles</button>
