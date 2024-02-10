@@ -1,10 +1,12 @@
-import{a as c}from"./assets/vendor-0cb09735.js";(function(){const r=document.createElement("link").relList;if(r&&r.supports&&r.supports("modulepreload"))return;for(const e of document.querySelectorAll('link[rel="modulepreload"]'))t(e);new MutationObserver(e=>{for(const i of e)if(i.type==="childList")for(const o of i.addedNodes)o.tagName==="LINK"&&o.rel==="modulepreload"&&t(o)}).observe(document,{childList:!0,subtree:!0});function a(e){const i={};return e.integrity&&(i.integrity=e.integrity),e.referrerPolicy&&(i.referrerPolicy=e.referrerPolicy),e.crossOrigin==="use-credentials"?i.credentials="include":e.crossOrigin==="anonymous"?i.credentials="omit":i.credentials="same-origin",i}function t(e){if(e.ep)return;e.ep=!0;const i=a(e);fetch(e.href,i)}})();const p=document.querySelector(".filter-buttons"),l=document.querySelector(".exercise-filters-list"),m=document.querySelector(".ExercisesHead"),n="https://energyflow.b.goit.study/api",u="Muscles";p.addEventListener("click",f);async function f(s){s.preventDefault();const a=s.target.dataset.filter;if(console.log(a),s.target.tagName==="BUTTON")try{g(a).then(t=>{console.log(t),l.innerHTML=h(t)})}catch(t){console.log(t)}}async function g(s=u){try{return(await c.get(`${n}/filters`,{params:{filter:s,page:1,limit:20}})).data.results}catch(r){console.log(r)}}function h(s){return s.map(({name:a,filter:t,imgUrl:e})=>` <li class='ExercisesItem' data-filter='${t}' data-name='${a}'>
-        <img class="img-exercises" src="${e}" alt="${t}">
+import{a as u}from"./assets/vendor-0cb09735.js";(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const r of document.querySelectorAll('link[rel="modulepreload"]'))s(r);new MutationObserver(r=>{for(const o of r)if(o.type==="childList")for(const i of o.addedNodes)i.tagName==="LINK"&&i.rel==="modulepreload"&&s(i)}).observe(document,{childList:!0,subtree:!0});function a(r){const o={};return r.integrity&&(o.integrity=r.integrity),r.referrerPolicy&&(o.referrerPolicy=r.referrerPolicy),r.crossOrigin==="use-credentials"?o.credentials="include":r.crossOrigin==="anonymous"?o.credentials="omit":o.credentials="same-origin",o}function s(r){if(r.ep)return;r.ep=!0;const o=a(r);fetch(r.href,o)}})();const L=document.querySelector(".filter-buttons"),c=document.querySelector(".exercise-filters-list"),T=document.querySelector(".ExercisesHead"),p="https://energyflow.b.goit.study/api",y="Muscles",d=document.querySelector(".pagination");let n=1,m,g;L.addEventListener("click",F);async function F(t){t.preventDefault();const a=t.target.dataset.filter;if(console.log(a),t.target.tagName==="BUTTON")try{k(a).then(s=>{console.log(s),c.innerHTML=w(s)})}catch(s){console.log(s)}}async function k(t=y){try{return(await u.get(`${p}/filters`,{params:{filter:t,page:1,limit:12}})).data.results}catch(e){console.log(e)}}function w(t){return t.map(({name:a,filter:s,imgUrl:r})=>` <li class='ExercisesItem' data-filter='${s}' data-name='${a}'>
+        <img class="img-exercises" src="${r}" alt="${s}">
         <div>
           <p>${a}</p>
-          <p>${t}</p>
+          <p>${s}</p>
         </div>
-      </li>`).join("")}l.addEventListener("click",y);async function y(s){if(s.target===s.currentTarget)return;l.classList.add("ExerciseCategoryList");const r=s.target.closest(".ExercisesItem"),a=r.dataset.filter,t=r.dataset.name;console.log(a),console.log(t);try{const e=await x(a,t);l.innerHTML=v(e),m.innerHTML=E(t);const i=document.querySelector("#FilterBtn");console.log(i),i.addEventListener("click",$)}catch(e){console.log(e)}}async function x(s,r){try{return s==="Muscles"?(await c.get(`${n}/exercises`,{params:{muscles:r}})).data.results:s==="Body parts"?(await c.get(`${n}/exercises`,{params:{bodypart:r}})).data.results:(await c.get(`${n}/exercises`,{params:{equipment:r}})).data.results}catch(a){console.log(a)}}function v(s){return s.map(({rating:a,name:t,burnedCalories:e,time:i,bodyPart:o,target:d})=>`<li class="WorkoutCard">
+      </li>`).join("")}c.addEventListener("click",M);async function M(t){if(t.target===t.currentTarget)return;c.classList.add("ExerciseCategoryList");const e=t.target.closest(".ExercisesItem");m=e.dataset.filter,g=e.dataset.name;try{const{page:a,perPage:s,totalPages:r,results:o}=await h(m,g);console.log(o),c.innerHTML=x(o),T.innerHTML=B(g),document.querySelector("#FilterBtn").addEventListener("click",C);//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!НОВЕ
+if(r>1){const l=b(r);console.log(l),d.innerHTML=l}//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!НОВЕ
+d.addEventListener("click",$)}catch(a){console.log(a)}}async function h(t,e,a){try{return t==="Muscles"?(await u.get(`${p}/exercises`,{params:{muscles:e,page:a,limit:9}})).data:t==="Body parts"?(await u.get(`${p}/exercises`,{params:{bodypart:e,page:a,limit:9}})).data:(await u.get(`${p}/exercises`,{params:{equipment:e,page:a,limit:9}})).data}catch(s){console.log(s)}}function x(t){return t.map(({rating:a,name:s,burnedCalories:r,time:o,bodyPart:i,target:l})=>`<li class="WorkoutCard">
       <div class='CardHeader'>
         <div class='WorkoutWrapper'>
           <p class='Workout'>workout</p>
@@ -24,21 +26,21 @@ import{a as c}from"./assets/vendor-0cb09735.js";(function(){const r=document.cre
       <div class='RunIconWrapper'><svg width='14' height='14'>
           <use href='./img/symbol-defs.svg#icon-running'></use>
         </svg></div>
-        <p class='MainPartName'>${t}</p>
+        <p class='MainPartName'>${s}</p>
       </div>
       <ul class="CardFooter">
         <li>
-          <p class='CardFooterTextDescr'>Burned calories: <span class='CardFooterTextValue'>${e} / ${i} min</span></p>
+          <p class='CardFooterTextDescr'>Burned calories: <span class='CardFooterTextValue'>${r} / ${o} min</span></p>
         </li>
         <li>
-          <p class='CardFooterTextDescr'>Body part: <span class='CardFooterTextValue'>${o}</span></p>
+          <p class='CardFooterTextDescr'>Body part: <span class='CardFooterTextValue'>${i}</span></p>
         </li>
         <li>
-          <p class='CardFooterTextDescr'>Target: <span class='CardFooterTextValue'>${d}</span></p>
+          <p class='CardFooterTextDescr'>Target: <span class='CardFooterTextValue'>${l}</span></p>
         </li>
       </ul>
-    </li>`).join("")}function E(s){return`<div>
-  <h2 class="title-exercises">Exercises / <span class="NameValue"> ${s}</span></h2>
+    </li>`).join("")}function B(t){return`<div>
+  <h2 class="title-exercises">Exercises / <span class="NameValue"> ${t}</span></h2>
   <div class="ExercisesHeared">
   <div class="list-exercises filter-buttons" id='FilterBtn'>
     <button class="item-exercises" data-filter="Muscles">Muscles</button>
@@ -55,11 +57,13 @@ import{a as c}from"./assets/vendor-0cb09735.js";(function(){const r=document.cre
       </button>
     </form></div>
 </div>
-`}async function $(s){const r=document.querySelector(".title-exercises");if(r.innerHTML="Exercises",document.querySelector(".ExercisesForm").remove(),console.log(r),s.target===s.currentTarget)return;const t=s.target.dataset.filter;console.log(t);try{const e=await b(t);l.innerHTML=F(e)}catch(e){console.log(e)}}async function b(s=u){try{return(await c.get(`${n}/filters`,{params:{filter:s,page:1,limit:20}})).data.results}catch(r){console.log(r)}}function F(s){return s.map(({name:a,filter:t,imgUrl:e})=>` <li class='ExercisesItem' data-filter='${t}' data-name='${a}'>
-        <img class="img-exercises" src="${e}" alt="${t}">
+`}async function C(t){n=1,d.removeEventListener("click",$);const e=document.querySelector(".title-exercises");if(e.innerHTML="Exercises",document.querySelector(".ExercisesForm").remove(),console.log(e),t.target===t.currentTarget)return;const s=t.target.dataset.filter;console.log(s);try{const{page:r,perPage:o,totalPages:i,results:l}=await v(s);if(c.innerHTML=E(l),i>1){const f=b(r,i);console.log(f),d.innerHTML=f}//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!НОВЕ
+d.addEventListener("click",S)}catch(r){console.log(r)}}async function v(t=y){try{return(await u.get(`${p}/filters`,{params:{filter:t,page:n,limit:12}})).data}catch(e){console.log(e)}}function E(t){return t.map(({name:a,filter:s,imgUrl:r})=>` <li class='ExercisesItem' data-filter='${s}' data-name='${a}'>
+        <img class="img-exercises" src="${r}" alt="${s}">
         <div>
           <p>${a}</p>
-          <p>${t}</p>
+          <p>${s}</p>
         </div>
-      </li>`).join("")}
+      </li>`).join("")}//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!НОВЕ
+function b(t){let e="";for(let a=1;a<=t;a+=1)e+=`<button class="pagination-btn" type="button">${a}</button>`;return e}async function $(t){n=t.target.textContent,console.log(n);try{const{results:e,page:a,totalPages:s}=await h(m,g,n);c.innerHTML=x(e)}catch(e){console.log(e)}}async function S(t){n=t.target.textContent,console.log(n);try{const{results:e,page:a,totalPages:s}=await v(m,n);console.log(e),c.innerHTML=E(e)}catch(e){console.log(e)}}
 //# sourceMappingURL=commonHelpers.js.map
