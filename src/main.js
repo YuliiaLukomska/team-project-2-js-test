@@ -226,37 +226,44 @@ function updateExercisesHeaderMarkup(nameValue) {
 // ==================================================================================================
 
 // це виклик функції Данила. Треба щоб він зробив експорт
+// функція, яка спрацбовує коли ми клікаємо по фільтру (Muscle, Body Part, Equipment)
 async function onBtnClick(event) {
+  // робимо поточну сторінку першою
   currentPage = 1;
+  // видаляємо з нумерації сторінок слухача попереднього
   pagination.removeEventListener('click', onPaginationPages);
   // pagination.addEventListener('click', onPaginationPagesbyFilter);
+  // тут видалення тексту після слеша та форми
   const titleExercises = document.querySelector('.title-exercises');
   titleExercises.innerHTML = 'Exercises';
   const ExercisesForm = document.querySelector('.ExercisesForm');
   // ?????????????????????????????????????????форма видаляється при першому кліку, а при другому знову хоче видалити, а її вже нема
-  ExercisesForm.remove();
+  // ExercisesForm.remove(); /////????????????????????????????????????????????????????????
   console.log(titleExercises);
   if (event.target === event.currentTarget) {
     return;
   }
   // дістаємо значення дата-атрибута елемента, на який клацнули
-  const filterValue = event.target.dataset.filter;
+  filterValue = event.target.dataset.filter; //muscle, body part, equipment
 
-  console.log(filterValue); //muscle, body part, equipment
   // чому робиш пустим ul при виклику функції?
   // exerciseFiltersList.innerHTML = '';
+  // робимо запит по фільтру muscle, body part, equipment
   try {
     const { page, perPage, totalPages, results } = await getExercise(
       filterValue
     );
-    // передаємо аргументом значення дата атрибута кнопки на яку клікнули
+    console.log(totalPages);
+    // робимо розмітку всередині ul по фільтру починаюxи з першої сторінки
     exerciseFiltersList.innerHTML = markupExercise(results);
     if (totalPages > 1) {
       // const pag це буде рядок розмітки кнопок(нумерація сторінок)
-      const pag = paginationPages(page, totalPages);
+      const pag = paginationPages(totalPages);
       console.log(pag);
       // додаємо в div розмітку сторінок
       pagination.innerHTML = pag;
+    } else {
+      pagination.innerHTML = '';
     }
     // else {
     //   pagination.innerHTML = '';
