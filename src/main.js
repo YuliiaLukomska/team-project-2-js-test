@@ -6,6 +6,14 @@ const ExercisesHead = document.querySelector('.ExercisesHead');
 
 const BASE_URL = 'https://energyflow.b.goit.study/api';
 const filterValueDefault = 'Muscles';
+
+const pagination = document.querySelector('.pagination');
+let currentPage = 1;
+let screenWidth = window.innerWidth;
+let currentLimit = 0;
+let filterValue;
+let nameValue;
+
 // на div з кнопками вішаємо слухача
 filterButtons.addEventListener('click', filterBtnClick);
 
@@ -40,7 +48,7 @@ async function getExercises(filter = filterValueDefault) {
       params: {
         filter: filter,
         page: 1,
-        limit: 20,
+        limit: 12,
       },
     });
     return response.data.results;
@@ -81,48 +89,71 @@ async function onCardClick(event) {
   // при кліку на картку шукаємо найближчий елемент у якого буде заданий селектор (це li)
   const liEl = event.target.closest('.ExercisesItem');
   // тепер можемо отримати li дата-атрибути
-  const filterValue = liEl.dataset.filter;
-  const nameValue = liEl.dataset.name;
-  console.log(filterValue); //Muscles
-  console.log(nameValue); // abductors
+  filterValue = liEl.dataset.filter; //Muscles
+  nameValue = liEl.dataset.name; // abductors
   // передаємо ці атрибути в функцію , яка робить запит
   try {
-    const data = await getExercisesByFilter(filterValue, nameValue);
+    const { page, perPage, totalPages, results } = await getExercisesByFilter(
+      filterValue,
+      nameValue
+    );
     // це буде масив об'єктів
-    exerciseFiltersList.innerHTML = createMarkUp(data);
+    console.log(results);
+    exerciseFiltersList.innerHTML = createMarkUp(results);
+    // оновлюємо хедер секції Exercises
     ExercisesHead.innerHTML = updateExercisesHeaderMarkup(nameValue);
+    // додаємо на три кнопки фільтрів слухача по кліку--------------------------------------------------------------------------
     const FilterBtn = document.querySelector('#FilterBtn');
-    console.log(FilterBtn);
     FilterBtn.addEventListener('click', onBtnClick);
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!НОВЕ
+    if (totalPages > 1) {
+      // const pag це буде рядок розмітки кнопок(нумерація сторінок)
+      const pag = paginationPages(totalPages);
+      console.log(pag);
+      // додаємо в div розмітку сторінок
+      pagination.innerHTML = pag;
+    }
+    // else {
+    //   pagination.innerHTML = '';
+    // }
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!НОВЕ
+    // вішаємо на дів з кнопками нумерації сторінок слухача подій при кліку
+    pagination.addEventListener('click', onPaginationPages);
   } catch (error) {
     console.log(error);
   }
 }
 
-async function getExercisesByFilter(filterValue, nameValue) {
+async function getExercisesByFilter(filterValue, nameValue, currentPage) {
   // в запиті можливі три ключі, тому відповідно до значення фільтра пишемо цей ключ
   try {
     if (filterValue === 'Muscles') {
       const response = await axios.get(`${BASE_URL}/exercises`, {
         params: {
           muscles: nameValue,
+          page: currentPage,
+          limit: 9,
         },
       });
-      return response.data.results;
+      return response.data;
     } else if (filterValue === 'Body parts') {
       const response = await axios.get(`${BASE_URL}/exercises`, {
         params: {
           bodypart: nameValue,
+          page: currentPage,
+          limit: 9,
         },
       });
-      return response.data.results;
+      return response.data;
     } else {
       const response = await axios.get(`${BASE_URL}/exercises`, {
         params: {
           equipment: nameValue,
+          page: currentPage,
+          limit: 9,
         },
       });
-      return response.data.results;
+      return response.data;
     }
   } catch (error) {
     console.log(error);
@@ -196,25 +227,43 @@ function updateExercisesHeaderMarkup(nameValue) {
 
 // це виклик функції Данила. Треба щоб він зробив експорт
 async function onBtnClick(event) {
-  // +++++++++++++++++++++++++++++++++++++++++++++++ДОДАТИ В КОМАНДНИЙ РЕПОЗИТОРІЙ 10.02.2024
+  currentPage = 1;
+  pagination.removeEventListener('click', onPaginationPages);
+  // pagination.addEventListener('click', onPaginationPagesbyFilter);
   const titleExercises = document.querySelector('.title-exercises');
   titleExercises.innerHTML = 'Exercises';
   const ExercisesForm = document.querySelector('.ExercisesForm');
+  // ?????????????????????????????????????????форма видаляється при першому кліку, а при другому знову хоче видалити, а її вже нема
   ExercisesForm.remove();
   console.log(titleExercises);
-  // +++++++++++++++++++++++++++++++++++++++++++++++++
   if (event.target === event.currentTarget) {
     return;
   }
   // дістаємо значення дата-атрибута елемента, на який клацнули
   const filterValue = event.target.dataset.filter;
-  console.log(filterValue);
+
+  console.log(filterValue); //muscle, body part, equipment
   // чому робиш пустим ul при виклику функції?
   // exerciseFiltersList.innerHTML = '';
   try {
-    const data = await getExercise(filterValue);
+    const { page, perPage, totalPages, results } = await getExercise(
+      filterValue
+    );
     // передаємо аргументом значення дата атрибута кнопки на яку клікнули
-    exerciseFiltersList.innerHTML = markupExercise(data);
+    exerciseFiltersList.innerHTML = markupExercise(results);
+    if (totalPages > 1) {
+      // const pag це буде рядок розмітки кнопок(нумерація сторінок)
+      const pag = paginationPages(page, totalPages);
+      console.log(pag);
+      // додаємо в div розмітку сторінок
+      pagination.innerHTML = pag;
+    }
+    // else {
+    //   pagination.innerHTML = '';
+    // }
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!НОВЕ
+
+    pagination.addEventListener('click', onPaginationPagesbyFilter);
   } catch (error) {
     console.log(error);
   }
@@ -225,11 +274,11 @@ async function getExercise(filter = filterValueDefault) {
     const response = await axios.get(`${BASE_URL}/filters`, {
       params: {
         filter: filter,
-        page: 1,
-        limit: 20,
+        page: currentPage,
+        limit: 12,
       },
     });
-    return response.data.results;
+    return response.data;
   } catch (error) {
     console.log(error);
   }
@@ -256,3 +305,65 @@ function markupExercise(results) {
   // exerciseFiltersList.insertAdjacentHTML('beforeend', markup);
 }
 // --------------------------------------------------------------------------------------
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!НОВЕ
+function paginationPages(totalPages) {
+  let paginationHtml = '';
+  for (let i = 1; i <= totalPages; i += 1) {
+    paginationHtml += `<button class="pagination-btn" type="button">${i}</button>`;
+  }
+  // в залежності від к-ті сторінок повертає таку кількість кнопок в розмітці
+  return paginationHtml;
+}
+
+async function onPaginationPages(e) {
+  // при кліку на цифру сторінки будемо діставати цифру (текст-контент кнопки: 1, 4, 7...)
+  currentPage = e.target.textContent;
+  console.log(currentPage); // 7
+  // очищує ul з картками
+  // exerciseFiltersList.innerHTML = '';
+  try {
+    // запит на картки по фільтру
+    const { results, page, totalPages } = await getExercisesByFilter(
+      filterValue,
+      nameValue,
+      currentPage
+    );
+
+    // const filter = results[0].filter;
+
+    // if (page === totalPages) {
+    //   return;
+    // }
+    // робимо розмітку підкатегорій відповідно до номеру сторінки
+    exerciseFiltersList.innerHTML = createMarkUp(results);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// вішаємо слухач на дів з цифрами сторінок
+
+async function onPaginationPagesbyFilter(e) {
+  // при кліку на цифру сторінки будемо діставати цифру (текст-контент кнопки)
+  currentPage = e.target.textContent;
+  console.log(currentPage); // 7
+  // очищує ul з картками
+  // exerciseFiltersList.innerHTML = '';
+  try {
+    // запит на картки по фільтру
+    const { results, page, totalPages } = await getExercise(
+      filterValue,
+      currentPage
+    );
+    console.log(results);
+    // const filter = results[0].filter;
+
+    // if (page === totalPages) {
+    //   return;
+    // }
+    exerciseFiltersList.innerHTML = markupExercise(results);
+  } catch (error) {
+    console.log(error);
+  }
+}
