@@ -1,127 +1,90 @@
 import axios from 'axios';
+import { onPaginationPages } from './exercises_filters';
 
-const filterButtons = document.querySelector('.filter-buttons');
-const exerciseFiltersList = document.querySelector('.exercise-filters-list');
+const exerciseFiltersList = document.querySelector('.ExerciseFiltersList');
 const ExercisesHead = document.querySelector('.ExercisesHead');
+const pagination = document.querySelector('.Pagination');
 
 const BASE_URL = 'https://energyflow.b.goit.study/api';
-const filterValueDefault = 'Muscles';
-
-const pagination = document.querySelector('.pagination');
 let currentPage = 1;
-let screenWidth = window.innerWidth;
-let currentLimit = 0;
 let filterValue;
 let nameValue;
 
-// на div з кнопками вішаємо слухача
-filterButtons.addEventListener('click', filterBtnClick);
-
-async function filterBtnClick(event) {
-  // preventDefault напево нетреба (нема посилань і сабміту)
-  event.preventDefault();
-  // тут посилання на ДОМ-ел на який клікнули
-  const filterValue = event.target;
-  // дістаємо значення дата-атрибута елемента, на який клацнули
-  const qwer = filterValue.dataset.filter;
-  // чому робиш пустим ul при виклику функції?
-  // exerciseFiltersList.innerHTML = '';
-  console.log(qwer);
-  // tagName чи nodeName?
-  if (event.target.tagName !== 'BUTTON') {
-    return;
-  }
-  try {
-    // передаємо аргументом значення дата атрибута кнопки на яку клікнули
-    getExercises(qwer).then(data => {
-      console.log(data);
-      exerciseFiltersList.innerHTML = markupExercises(data);
-    });
-  } catch (error) {
-    console.log(error);
-  }
-}
-// по замовчувнню значення фільтра буде 'Muscles'
-async function getExercises(filter = filterValueDefault) {
-  try {
-    const response = await axios.get(`${BASE_URL}/filters`, {
-      params: {
-        filter: filter,
-        page: 1,
-        limit: 12,
-      },
-    });
-    return response.data.results;
-  } catch (error) {
-    console.log(error);
-  }
-}
-// функція отримує масив об'єктів
-function markupExercises(results) {
-  const markup = results
-    .map(
-      ({
-        name,
-        filter,
-        imgUrl,
-      }) => ` <li class='ExercisesItem' data-filter='${filter}' data-name='${name}'>
-        <img class="img-exercises" src="${imgUrl}" alt="${filter}">
-        <div>
-          <p>${name}</p>
-          <p>${filter}</p>
-        </div>
-      </li>`
-    )
-    .join('');
-  return markup;
-  // треба іннерhtml, щоб при кліку відбувалась заміна розмітки, а не продовження
-  // exerciseFiltersList.insertAdjacentHTML('beforeend', markup);
-}
-// -------------------------------------------------------------------------------------------------------------------------------
 exerciseFiltersList.addEventListener('click', onCardClick);
 
 async function onCardClick(event) {
+  exerciseFiltersList.removeEventListener('click', onCardClick);
+  exerciseFiltersList.classList.add('ExerciseCategoryList');
+  pagination.removeEventListener('click', onPaginationPages);
+  pagination.removeEventListener('click', onPaginationPagesbyFilter);
   if (event.target === event.currentTarget) {
     return;
   }
-  // при кліку на картку додаємо клас до ul (бо він має інші стилі)
-  exerciseFiltersList.classList.add('ExerciseCategoryList');
-  // при кліку на картку шукаємо найближчий елемент у якого буде заданий селектор (це li)
-  const liEl = event.target.closest('.ExercisesItem');
-  // тепер можемо отримати li дата-атрибути
-  filterValue = liEl.dataset.filter; //Muscles
+  exerciseFiltersList.classList.add('ExerciseCategoryList'); // при кліку на картку додаємо клас до ul (бо він має інші стилі)
+  const liEl = event.target.closest('.ExercisesItem'); // при кліку на картку шукаємо найближчий елемент у якого буде заданий селектор (це li)
+  filterValue = liEl.dataset.filter; //Muscles   // тепер можемо отримати li дата-атрибути
   nameValue = liEl.dataset.name; // abductors
-  // передаємо ці атрибути в функцію , яка робить запит
+
   try {
-    const { page, perPage, totalPages, results } = await getExercisesByFilter(
+    ExercisesHead.innerHTML = updateExercisesHeaderMarkup(nameValue); // оновлюємо хедер секції Exercises
+    const { totalPages, results } = await getExercisesByFilter(
       filterValue,
       nameValue
     );
-    // це буде масив об'єктів
-    console.log(results);
-    exerciseFiltersList.innerHTML = createMarkUp(results);
-    // оновлюємо хедер секції Exercises
-    ExercisesHead.innerHTML = updateExercisesHeaderMarkup(nameValue);
-    // додаємо на три кнопки фільтрів слухача по кліку--------------------------------------------------------------------------
-    const FilterBtn = document.querySelector('#FilterBtn');
-    FilterBtn.addEventListener('click', onBtnClick);
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!НОВЕ
-    if (totalPages > 1) {
-      // const pag це буде рядок розмітки кнопок(нумерація сторінок)
-      const pag = paginationPages(totalPages);
-      console.log(pag);
-      // додаємо в div розмітку сторінок
-      pagination.innerHTML = pag;
-    }
-    // else {
-    //   pagination.innerHTML = '';
+    exerciseFiltersList.innerHTML = createMarkUp(results); // це буде масив об'єктів
+    const StartBtn = document.querySelector('.StartBtn');
+    // треба імпортувати функцію onStartBtnClick -------
+    // StartBtn.addEventListener('click', onStartBtnClick)
+
+    // ------------------------------new КОД ДЛЯ ДЕНИСА --- ПОМИЛКА--- ПОКИ КОМЕНТУЮ---------------------------------------
+    // const ExercisesForm = document.querySelector('.ExercisesForm');
+    // ExercisesForm.addEventListener(
+    //   'submit',
+    //   onFormSubmit(filterValue, nameValue)
+    // );
+
+    // // Определяем асинхронную функцию onFormSubmit. Функция принимает объект запроса query
+    // async function onFormSubmit(query) {
+    //   try {
+    //     // Выполняем GET-запрос к API с передачей параметров запроса. Результат запроса сохраняем в переменной response
+    //     const response = await axios.get(`${BASE_URL}`, {
+    //       params: {
+    //         bodypart: '',
+    //         muscles: '',
+    //         equipment: '',
+    //         keyword: query.query, // эти значения из queryParams
+    //         page: query.page,
+    //         limit: 9,
+    //       },
+    //     });
+    //     // Вызываем функцию renderExercises с передачей массива упражнений из ответа
+    //     renderExercises(response.data.results);
+    //   } catch (error) {
+    //     handleError(error); // Вывод ошибки в консоль при возникновении ошибки запроса
+    //   }
     // }
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!НОВЕ
-    // вішаємо на дів з кнопками нумерації сторінок слухача подій при кліку
-    pagination.addEventListener('click', onPaginationPages);
+
+    // -------------------------------new  КОД ДЛЯ ДЕНИСА --- ПОМИЛКА--- ПОКИ КОМЕНТУЮ--------------------------------------
+
+    const FilterBtn = document.querySelector('#FilterBtn'); // додаємо на три кнопки фільтрів слухача по кліку
+    FilterBtn.addEventListener('click', onBtnClick);
+    FilterBtn.addEventListener('click', onBtnClickForFormDelete);
+    pagination.innerHTML = ''; // пагінація
+    if (totalPages > 1) {
+      const pag = paginationPages(totalPages); // const pag це буде рядок розмітки кнопок(нумерація сторінок)
+      pagination.innerHTML = pag; // додаємо в div розмітку сторінок
+    }
+    pagination.addEventListener('click', onPaginationPage); // вішаємо на дів з кнопками нумерації сторінок слухача подій при кліку
   } catch (error) {
     console.log(error);
   }
+}
+
+function onBtnClickForFormDelete() {
+  const ExercisesForm = document.querySelector('.ExercisesForm');
+  // ???vформа видаляється при першому кліку, а при другому знову хоче видалити, а її вже нема
+  ExercisesForm.remove();
+  FilterBtn.removeEventListener('click', onBtnClickForFormDelete);
 }
 
 async function getExercisesByFilter(filterValue, nameValue, currentPage) {
@@ -162,7 +125,7 @@ async function getExercisesByFilter(filterValue, nameValue, currentPage) {
 
 function createMarkUp(array) {
   const markup = array
-    .map(({ rating, name, burnedCalories, time, bodyPart, target }) => {
+    .map(({ rating, name, burnedCalories, time, bodyPart, target, _id }) => {
       return `<li class="WorkoutCard">
       <div class='CardHeader'>
         <div class='WorkoutWrapper'>
@@ -172,7 +135,7 @@ function createMarkUp(array) {
           <use href='./img/symbol-defs.svg#icon-star'></use>
         </svg></div>
         </div>
-        <div class='StartBtn'>
+        <div class='StartBtn' data-id='${_id}'>
           <p>Start</p>
           <svg width='13' height='13'>
           <use href='./img/symbol-defs.svg#icon-arrow'></use>
@@ -196,6 +159,7 @@ function createMarkUp(array) {
           <p class='CardFooterTextDescr'>Target: <span class='CardFooterTextValue'>${target}</span></p>
         </li>
       </ul>
+
     </li>`;
     })
     .join('');
@@ -204,12 +168,12 @@ function createMarkUp(array) {
 
 function updateExercisesHeaderMarkup(nameValue) {
   return `<div>
-  <h2 class="title-exercises">Exercises / <span class="NameValue"> ${nameValue}</span></h2>
+  <h2 class="TitleExercises">Exercises / <span class="NameValue"> ${nameValue}</span></h2>
   <div class="ExercisesHeared">
-  <div class="list-exercises filter-buttons" id='FilterBtn'>
-    <button class="item-exercises" data-filter="Muscles">Muscles</button>
-    <button class="item-exercises" data-filter="Body parts">Body parts</button>
-    <button class="item-exercises" data-filter="Equipment">Equipment</button>
+  <div class="ListExercises FilterButtons" id='FilterBtn'>
+    <button class="ItemExercises" data-filter="Muscles" id='MusclesBtn'>Muscles</button>
+    <button class="ItemExercises" data-filter="Body parts" id='BodyPartBtn'>Body parts</button>
+    <button class="ItemExercises" data-filter="Equipment" id='EquipmentBtn'>Equipment</button>
   </div>
     <form action="" class="ExercisesForm">
       <label for="#search" class="visually-hidden">Search</label>
@@ -223,59 +187,44 @@ function updateExercisesHeaderMarkup(nameValue) {
 </div>
 `;
 }
-// ==================================================================================================
 
 // це виклик функції Данила. Треба щоб він зробив експорт
-// функція, яка спрацбовує коли ми клікаємо по фільтру (Muscle, Body Part, Equipment)
+// функція, яка спрацьовує коли ми клікаємо по фільтру (Muscle, Body Part, Equipment) і повертаємось назад
 async function onBtnClick(event) {
-  // робимо поточну сторінку першою
-  currentPage = 1;
-  // видаляємо з нумерації сторінок слухача попереднього
-  pagination.removeEventListener('click', onPaginationPages);
-  // pagination.addEventListener('click', onPaginationPagesbyFilter);
-  // тут видалення тексту після слеша та форми
-  const titleExercises = document.querySelector('.title-exercises');
-  titleExercises.innerHTML = 'Exercises';
-  const ExercisesForm = document.querySelector('.ExercisesForm');
-  // ?????????????????????????????????????????форма видаляється при першому кліку, а при другому знову хоче видалити, а її вже нема
-  // ExercisesForm.remove(); /////????????????????????????????????????????????????????????
-  console.log(titleExercises);
+  exerciseFiltersList.addEventListener('click', onCardClick);
+  exerciseFiltersList.classList.remove('ExerciseCategoryList');
+  currentPage = 1; // робимо поточну сторінку першою
+  pagination.removeEventListener('click', onPaginationPage); // видаляємо з нумерації сторінок слухача попереднього
+  Array.from(event.currentTarget.children).map(item => {
+    if (item.textContent !== event.target.textContent) {
+      item.classList.remove('ButtonIsActive');
+    } else {
+      event.target.classList.add('ButtonIsActive');
+    }
+  });
   if (event.target === event.currentTarget) {
     return;
   }
-  // дістаємо значення дата-атрибута елемента, на який клацнули
-  filterValue = event.target.dataset.filter; //muscle, body part, equipment
-
-  // чому робиш пустим ul при виклику функції?
-  // exerciseFiltersList.innerHTML = '';
-  // робимо запит по фільтру muscle, body part, equipment
+  filterValue = event.target.dataset.filter; // дістаємо значення дата-атрибута елемента, на який клацнули
   try {
-    const { page, perPage, totalPages, results } = await getExercise(
-      filterValue
-    );
-    console.log(totalPages);
-    // робимо розмітку всередині ul по фільтру починаюxи з першої сторінки
-    exerciseFiltersList.innerHTML = markupExercise(results);
+    const { totalPages, results } = await getExercise(filterValue);
+    exerciseFiltersList.innerHTML = markupExercise(results); // робимо розмітку всередині ul по фільтру починаюxи з першої сторінки
     if (totalPages > 1) {
-      // const pag це буде рядок розмітки кнопок(нумерація сторінок)
       const pag = paginationPages(totalPages);
-      console.log(pag);
-      // додаємо в div розмітку сторінок
       pagination.innerHTML = pag;
     } else {
       pagination.innerHTML = '';
     }
-    // else {
-    //   pagination.innerHTML = '';
-    // }
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!НОВЕ
-
     pagination.addEventListener('click', onPaginationPagesbyFilter);
+    // тут видалення тексту після слеша та форми
+    const titleExercises = document.querySelector('.TitleExercises');
+    titleExercises.innerHTML = 'Exercises';
+    // ------------------------------------------
   } catch (error) {
     console.log(error);
   }
 }
-// по замовчувнню значення фільтра буде 'Muscles'
+
 async function getExercise(filter = filterValueDefault) {
   try {
     const response = await axios.get(`${BASE_URL}/filters`, {
@@ -290,7 +239,7 @@ async function getExercise(filter = filterValueDefault) {
     console.log(error);
   }
 }
-// функція отримує масив об'єктів
+
 function markupExercise(results) {
   const markup = results
     .map(
@@ -298,52 +247,37 @@ function markupExercise(results) {
         name,
         filter,
         imgUrl,
-      }) => ` <li class='ExercisesItem' data-filter='${filter}' data-name='${name}'>
-        <img class="img-exercises" src="${imgUrl}" alt="${filter}">
-        <div>
-          <p>${name}</p>
-          <p>${filter}</p>
+      }) => ` <li class='FilterList ExercisesItem' data-filter='${filter}' data-name='${name}'>
+        <img class="ImgExercises" src="${imgUrl}" alt="${filter}">
+        <div class="FilterText">
+          <p class="FilterExercises">${name}</p>
+          <p class="FilterName">${filter}</p>
         </div>
       </li>`
     )
     .join('');
   return markup;
-  // треба іннерhtml, щоб при кліку відбувалась заміна розмітки, а не продовження
-  // exerciseFiltersList.insertAdjacentHTML('beforeend', markup);
 }
-// --------------------------------------------------------------------------------------
-
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!НОВЕ
+// ---------------------------------------------------ПАГІНАЦІЯ------------------------------------------------------------
 function paginationPages(totalPages) {
   let paginationHtml = '';
   for (let i = 1; i <= totalPages; i += 1) {
     paginationHtml += `<button class="pagination-btn" type="button">${i}</button>`;
   }
-  // в залежності від к-ті сторінок повертає таку кількість кнопок в розмітці
-  return paginationHtml;
+
+  return paginationHtml; // в залежності від к-ті сторінок повертає таку кількість кнопок в розмітці
 }
 
-async function onPaginationPages(e) {
-  // при кліку на цифру сторінки будемо діставати цифру (текст-контент кнопки: 1, 4, 7...)
-  currentPage = e.target.textContent;
-  console.log(currentPage); // 7
-  // очищує ul з картками
-  // exerciseFiltersList.innerHTML = '';
+async function onPaginationPage(e) {
+  currentPage = e.target.textContent; // при кліку на цифру сторінки будемо діставати цифру (текст-контент кнопки: 1, 4, 7...)
   try {
     // запит на картки по фільтру
-    const { results, page, totalPages } = await getExercisesByFilter(
+    const { results } = await getExercisesByFilter(
       filterValue,
       nameValue,
       currentPage
     );
-
-    // const filter = results[0].filter;
-
-    // if (page === totalPages) {
-    //   return;
-    // }
-    // робимо розмітку підкатегорій відповідно до номеру сторінки
-    exerciseFiltersList.innerHTML = createMarkUp(results);
+    exerciseFiltersList.innerHTML = createMarkUp(results); // робимо розмітку підкатегорій відповідно до номеру сторінки
   } catch (error) {
     console.log(error);
   }
@@ -352,25 +286,16 @@ async function onPaginationPages(e) {
 // вішаємо слухач на дів з цифрами сторінок
 
 async function onPaginationPagesbyFilter(e) {
-  // при кліку на цифру сторінки будемо діставати цифру (текст-контент кнопки)
   currentPage = e.target.textContent;
-  console.log(currentPage); // 7
-  // очищує ul з картками
-  // exerciseFiltersList.innerHTML = '';
   try {
     // запит на картки по фільтру
-    const { results, page, totalPages } = await getExercise(
-      filterValue,
-      currentPage
-    );
-    console.log(results);
-    // const filter = results[0].filter;
-
-    // if (page === totalPages) {
-    //   return;
-    // }
+    const { results } = await getExercise(filterValue, currentPage);
     exerciseFiltersList.innerHTML = markupExercise(results);
   } catch (error) {
     console.log(error);
   }
 }
+
+export { createMarkUp };
+
+// Импорт необходимых библиотек
